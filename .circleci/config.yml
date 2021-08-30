@@ -40,14 +40,15 @@ jobs:
       - checkout
       #- restore_cache:
       #    keys: [frontend-build]
-      - run: npm install
+      - run: |
+          cd frontend
+          npm install
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
       - run:
           name: Build front-end
           command: |
-            cd frontend
             npm run lint
 
 
@@ -58,14 +59,15 @@ jobs:
       - checkout
       # - restore_cache:
       #     keys: [backend-build]
-      - run: npm install
+      - run: |
+          cd backend
+          npm install
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
       - run:
           name: Back-end build
           command: |
-            cd backend
             npm run lint
       
 
