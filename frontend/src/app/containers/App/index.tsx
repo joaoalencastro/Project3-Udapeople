@@ -27,10 +27,10 @@ class App extends Component<App.Props> {
       : 3000;
 
     const CloseButton = ({ closeToast }: any) => (
-      <a href="javascript:void(0)" className={style['e-toaster-close']}>
+      <a href='javascript:void(0)' className={style['e-toaster-close']}>
         <i
           className={`${style.icon} ${style['i-cancel']} ${style['margin-left']}`}
-          aria-hidden="true"
+          aria-hidden='true'
           onClick={closeToast}
         />
       </a>

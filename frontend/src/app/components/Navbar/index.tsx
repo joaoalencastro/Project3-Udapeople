@@ -52,14 +52,14 @@ export class Navbar extends React.Component<Navbar.Props, Navbar.State> {
     const destination = '/employees';
     if (this.shouldViewChange(destination))
       this.props.history.push(destination);
-  };
+  }
 
   goToAddEmployee = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const destination = '/employees/new';
     if (this.shouldViewChange(destination))
       this.props.history.push(destination);
-  };
+  }
 
   render() {
     // const { isEmployeesActive } = this.state;
@@ -71,7 +71,7 @@ export class Navbar extends React.Component<Navbar.Props, Navbar.State> {
         <div className={style['g-sidebar']}>
           <button
             className={`${style['mob-closenav']} ${style['close-button']} `}
-            aria-label="Close Navigation Bar"
+            aria-label='Close Navigation Bar'
             type='button'
           >
             <span aria-hidden='true'>×</span>

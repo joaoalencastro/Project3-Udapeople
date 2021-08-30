@@ -1,6 +1,6 @@
 import { Dispatch } from 'redux';
 import { createAction } from 'redux-actions';
-import { 
+import {
   EmployeeModel,
   EmployeeUpdateStringFieldModel,
   EmployeeUpdateNumberFieldModel,
@@ -146,7 +146,7 @@ export namespace EmployeeActions {
     }
   };
 
- export const updateNumberField = (employeeId: string, payload: EmployeeUpdateNumberFieldModel, fieldName: string,) => async () => {
+  export const updateNumberField = (employeeId: string, payload: EmployeeUpdateNumberFieldModel, fieldName: string ) => async () => {
   try {
     await new EmployeesService().updateField(employeeId, payload, fieldName);
     showSuccessNotification(text.EDIT_EMPLOYEE_FIELD_SUCCESS);
