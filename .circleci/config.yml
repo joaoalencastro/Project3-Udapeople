@@ -86,7 +86,7 @@ jobs:
           name: Unit Testing frontend
           command: |
             cd frontend
-            ./node_modules/.bin/jest
+            npm run test
                 
   test-backend:
     docker:
@@ -102,7 +102,7 @@ jobs:
           name: Unit Testing backend
           command: |
             cd backend
-            ./node_modules/.bin/jest
+            npm run test
             
   scan-frontend:
     docker:
