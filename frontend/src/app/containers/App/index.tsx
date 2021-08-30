@@ -40,11 +40,11 @@ class App extends Component<App.Props> {
       <div>
         <Navbar history={this.props.history} />
         <Switch>
-          <Route exact path="/employees" component={Employees} />
-          <Route exact path="/employees/new" component={AddEmployee} />
-          <Route path="/employees/:employeeId/edit" component={EditEmployee} />
-          <Route path="/employees/:employeeId/view" component={ViewEmployee} />
-          <Route render={() => <Redirect to="/error" />} />
+          <Route exact path='/employees' component={Employees} />
+          <Route exact path='/employees/new' component={AddEmployee} />
+          <Route path='/employees/:employeeId/edit' component={EditEmployee} />
+          <Route path='/employees/:employeeId/view' component={ViewEmployee} />
+          <Route render={() => <Redirect to='/error' />} />
         </Switch>
         <ToastContainer
           closeButton={<CloseButton />}
