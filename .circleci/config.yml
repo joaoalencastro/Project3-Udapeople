@@ -47,8 +47,7 @@ jobs:
       - run:
           name: Build front-end
           command: |
-            tslint -p tsconfig.json -c tslint.json
-            webpack --mode development --progress --colors
+            npm run lint
 
 
   build-backend:
@@ -65,8 +64,7 @@ jobs:
       - run:
           name: Back-end build
           command: |
-             tslint -p tsconfig.json -c tslint.json --fix
-             tsc
+             npm run lint
       
 
 
