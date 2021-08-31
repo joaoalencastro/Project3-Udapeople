@@ -60,7 +60,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-build]
-      - run: ls -l frontend/node_modules
+      - run: ls -l frontend
 
   build-backend:
     docker:
