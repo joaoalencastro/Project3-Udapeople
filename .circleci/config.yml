@@ -72,13 +72,14 @@ jobs:
             npm install
             npm run build
             npm run lint
+            return 1
       - save_cache:
           key: backend-build-{{ checksum "package-lock.json" }}
           paths: 
             - backend/node_modules
             - backend/dist
       - slack/notify:
-          event: always
+          event: pass
           custom: |
             {
               "blocks": [
@@ -86,14 +87,35 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "Job: $CIRCLE_JOB, Build: $CIRCLE_BUILD_NUM of $CIRCLE_BRANCH"
+                    "text": "Fixed job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "Commit #$CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
+                    "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
+                  }
+                }
+              ]
+            }
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Failed job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BUILD_URL)"
                   }
                 }
               ]
