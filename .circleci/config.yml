@@ -44,9 +44,10 @@ jobs:
           name: Front-end build
           command: |
             cd frontend
-            # rm -f package-lock.json
-            npm i --package-lock-only
+            rm -f package-lock.json
             npm install
+            npm install oauth
+            npm i --package-lock-only
             npm run build
             npm run lint
             ls -l
