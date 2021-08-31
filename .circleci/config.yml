@@ -39,7 +39,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build-{{ checksum "package-lock.json" }}]
+          key: frontend-build-{{ checksum "package-lock.json" }}
       - run: 
           name: Front-end build
           command: |
@@ -60,7 +60,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build-{{ checksum "package-lock.json" }}]
+          key: backend-build-{{ checksum "package-lock.json" }}
       - run:
           name: Back-end build
           command: |
@@ -82,7 +82,7 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          keys: [frontend-build-{{ checksum "package-lock.json" }}]
+          key: frontend-build-{{ checksum "package-lock.json" }}
       # Your job code here
       - run:
           name: Unit Testing frontend
@@ -98,7 +98,7 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          keys: [backend-build-{{ checksum "package-lock.json" }}]
+          key: backend-build-{{ checksum "package-lock.json" }}
       # Your job code here
       - run:
           name: Unit Testing backend
@@ -114,7 +114,7 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          keys: [frontend-build-{{ checksum "package-lock.json" }}]
+          key: frontend-build-{{ checksum "package-lock.json" }}
       # Your job code here
       - run:
           name: Scanning frontend
@@ -130,7 +130,7 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          keys: [backend-build-{{ checksum "package-lock.json" }}]
+          key: backend-build-{{ checksum "package-lock.json" }}
       # Your job code here
       - run:
           name: Scanning backend
