@@ -115,7 +115,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BUILD_URL)"
+                    "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
                   }
                 }
               ]
