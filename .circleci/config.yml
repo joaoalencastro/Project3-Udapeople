@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  slack: circleci/slack@4.0
+  slack: circleci/slack@4.4.4
 
 commands:
   destroy-environment:
@@ -154,12 +154,12 @@ workflows:
       - build-frontend
       - build-backend
       - test-frontend:
-          context: slack-secrets
+          context: SLACK
           requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
       - scan-frontend:
-          context: slack-secrets
+          context: SLACK
           requires: [build-frontend]
       - scan-backend:
           requires: [build-backend]
