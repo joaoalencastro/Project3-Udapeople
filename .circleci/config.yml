@@ -39,7 +39,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys: [frontend-build1]
       - run: |
           cd frontend
           npm install
@@ -47,15 +47,10 @@ jobs:
           npm run lint
           ls -l
       - save_cache:
-          key: frontend-build
+          key: frontend-build1
           paths: 
             - frontend/node_modules
-      - run:
-          name: Build front-end
-          command: |
-            cd frontend
-            npm run build
-            npm run lint
+            - frontend/dist
 
   testing-cache:
     docker:
@@ -63,7 +58,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys: [frontend-build1]
       - run: ls -l frontend
 
   build-backend:
@@ -94,7 +89,7 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          keys: [frontend-build]
+          keys: [frontend-build1]
       # Your job code here
       - run:
           name: Unit Testing frontend
@@ -126,7 +121,7 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          keys: [frontend-build]
+          keys: [frontend-build1]
       # Your job code here
       - run:
           name: Scanning frontend
