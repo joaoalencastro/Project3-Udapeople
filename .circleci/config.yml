@@ -77,6 +77,27 @@ jobs:
           paths: 
             - backend/node_modules
             - backend/dist
+      - notify/slack:
+          event: always
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Job: $CIRCLE_JOB, Build: $CIRCLE_BUILD_NUM of $CIRCLE_BRANCH"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Commit #$CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
+                  }
+                }
+              ]
+            }
       
   test-frontend:
     docker:
@@ -93,9 +114,6 @@ jobs:
           command: |
             cd frontend
             npm run test
-      - slack/notify:
-          event: always
-          template: basic_fail_1
                 
   test-backend:
     docker:
@@ -124,13 +142,7 @@ jobs:
           name: Scanning frontend
           command: |
             cd frontend
-            npm audit fix --audit-level=critical --force
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
+            npm audit fix --audit-level=critical --force         
 
   scan-backend:
     docker:
@@ -152,14 +164,13 @@ workflows:
   default:
     jobs:
       - build-frontend
-      - build-backend
-      - test-frontend:
+      - build-backend:
           context: SLACK
+      - test-frontend:
           requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
       - scan-frontend:
-          context: SLACK
           requires: [build-frontend]
       - scan-backend:
           requires: [build-backend]
