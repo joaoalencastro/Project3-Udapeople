@@ -43,6 +43,7 @@ jobs:
       - run: |
           cd frontend
           npm install
+          ls -l frontend
       - save_cache:
           key: frontend-build
           paths: 
