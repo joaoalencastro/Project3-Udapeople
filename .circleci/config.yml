@@ -87,8 +87,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": ":white_check_mark: **Fixed** job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)",
-                    "emoji": true
+                    "text": ":white_check_mark: **Fixed** job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
                   }
                 },
                 {
@@ -109,8 +108,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": ":red_circle: **Failed** job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)",
-                    "emoji": true
+                    "text": ":red_circle: **Failed** job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
                   }
                 },
                 {
