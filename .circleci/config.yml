@@ -77,7 +77,7 @@ jobs:
           paths: 
             - backend/node_modules
             - backend/dist
-      - notify/slack:
+      - slack/notify:
           event: always
           custom: |
             {
