@@ -43,6 +43,8 @@ jobs:
       - run: |
           cd frontend
           npm install
+          npm run build
+          npm run lint
           ls -l
       - save_cache:
           key: frontend-build
@@ -52,6 +54,7 @@ jobs:
           name: Build front-end
           command: |
             cd frontend
+            npm run build
             npm run lint
 
   testing-cache:
