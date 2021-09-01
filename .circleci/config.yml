@@ -181,6 +181,74 @@ jobs:
             cd backend
             npm audit fix --audit-level=critical --force
 
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --tags Project=udapeople Stack=backend \
+              --stack-name "backend-$CIRCLE_WORKFLOW_ID" \
+              --parameter-overrides ID="$CIRCLE_WORKFLOW_ID"
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags Project=udapeople Stack=frontend \
+              --stack-name "frontend-$CIRCLE_WORKFLOW_ID" \
+              --parameter-overrides ID="$CIRCLE_WORKFLOW_ID"  
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            aws ec2 describe-instances \
+              --filters "Name=tag:Stack,Values=backend" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text >> .circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - Project3-Udapeople/.circleci/ansible/inventory.txt
+      # Here's where you will add some code to rollback on failure
+      - run:
+          name: Rollback of backend in event of job failing
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack \
+              --stack-name "backend-$CIRCLE_WORKFLOW_ID"
+      - run:
+          name: Rollback of frontend in event of job failing
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack \
+              --stack-name "frontend-$CIRCLE_WORKFLOW_ID"
+      
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      # Checkout code from git
+      - checkout
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: ["5a:bf:c3:70:1f:c7:cf:b4:c8:21:99:36:b8:ab:cc:b8"]
+      # attach workspace
+      - attach_workspace:
+          at: ~/Project3-Udapeople/.circleci/ansible/inventory.txt
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i ~/Project3-Udapeople/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+      # Here's where you will add some code to rollback on failure
+
 workflows:
   default:
     jobs:
@@ -195,13 +263,13 @@ workflows:
           requires: [build-frontend]
       - scan-backend:
           requires: [build-backend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [test-feature-branch]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [test-feature-branch]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
