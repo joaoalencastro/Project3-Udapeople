@@ -42,7 +42,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: frontend-build-{{ checksum "package-lock.json" }}
+          key: frontend-build--{{ checksum "package-lock.json" }}
       - run: 
           name: Front-end build
           command: |
@@ -53,10 +53,11 @@ jobs:
             npm run lint
             ls -l
       - save_cache:
-          key: frontend-build-{{ checksum "package-lock.json" }}
+          key: frontend-build--{{ checksum "package-lock.json" }}
           paths: 
             - frontend/node_modules
             - frontend/dist
+            - frontend/package-lock.json
 
   build-backend:
     docker:
@@ -128,7 +129,7 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          key: frontend-build-{{ checksum "package-lock.json" }}
+          key: frontend-build--{{ checksum "package-lock.json" }}
       # Your job code here
       - run:
           name: Unit Testing frontend
@@ -158,12 +159,11 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: frontend-build-{{ checksum "package-lock.json" }}
+          key: frontend-build--{{ checksum "package-lock.json" }}
       - run:
           name: Scanning frontend
           command: |
             cd frontend
-            npm install oauth-sign
             npm audit fix --audit-level=critical --force
 
   scan-backend:
@@ -268,7 +268,7 @@ workflows:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
-              only: [test-feature-branch]
+              only: [main]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       # - run-migrations:
