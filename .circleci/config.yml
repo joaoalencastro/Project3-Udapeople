@@ -3,6 +3,49 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.4.4
 
+fail_template: &fail_template
+  custom: |
+    {
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":red_circle: Failed job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
+          }
+        }
+      ]
+    }
+
+success_template: &success_template
+  custom: |
+    {
+      "blocks": [
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":white_check_mark: Fixed job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
+          }
+        }
+      ]
+    }
+
+
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -40,56 +83,6 @@ commands:
             #  Add revert code here. You can find this in the Getting Started section.
               exit 1
             fi
-
-  slack-notify-success:
-    description: Send message in slack of job success
-    steps:
-      - slack/notify:
-          event: pass
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": ":white_check_mark: Fixed job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
-                  }
-                }
-              ]
-            }
-
-  slack-notify-fail:
-    description: Send message in slack of job fail
-    steps:
-      - slack/notify:
-          event: fail
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": ":red_circle: Failed job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
-                  }
-                }
-              ]
-            }
             
 jobs:
   build-frontend:
@@ -114,7 +107,9 @@ jobs:
             - frontend/node_modules
             - frontend/dist
             - frontend/package-lock.json
-      - slack-notify-fail
+      - slack/notify:
+          event: fail
+          <<: *fail_template
 
   build-backend:
     docker:
@@ -135,7 +130,9 @@ jobs:
           paths: 
             - backend/node_modules
             - backend/dist
-      - slack-notify-fail
+      - slack/notify:
+          event: fail
+          <<: *fail_template
       
   test-frontend:
     docker:
@@ -152,7 +149,9 @@ jobs:
           command: |
             cd frontend
             npm run test
-      - slack-notify-fail
+      - slack/notify:
+          event: fail
+          <<: *fail_template
                 
   test-backend:
     docker:
@@ -169,7 +168,9 @@ jobs:
           command: |
             cd backend
             npm run test
-      - slack-notify-fail
+      - slack/notify:
+          event: fail
+          <<: *fail_template
             
   scan-frontend:
     docker:
@@ -183,7 +184,9 @@ jobs:
           command: |
             cd frontend
             npm audit fix --audit-level=critical --force
-      - slack-notify-fail
+      - slack/notify:
+          event: fail
+          <<: *fail_template
 
   scan-backend:
     docker:
@@ -200,7 +203,9 @@ jobs:
           command: |
             cd backend
             npm audit fix --audit-level=critical --force
-      - slack-notify-fail
+      - slack/notify:
+          event: fail
+          <<: *fail_template
 
   deploy-infrastructure:
     docker:
@@ -239,8 +244,12 @@ jobs:
           root: ~/
           paths:
             - inventory.txt
-      - slack-notify-success
-      - slack-notify-fail
+      - slack/notify:
+          event: pass
+          <<: *success_template
+      - slack/notify:
+          event: fail
+          <<: *fail_template
       # rollback on failure
       - destroy-environment
 
@@ -266,7 +275,9 @@ jobs:
           command: |
             cat ~/inventory.txt
             ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
-      - slack-notify-fail
+      - slack/notify:
+          event: fail
+          <<: *fail_template
       # rollback on failure
       - destroy-environment
 
@@ -285,6 +296,9 @@ jobs:
           command: |
             # Your code here
             exit 1
+      - slack/notify:
+          event: fail
+          <<: *fail_template
      # Here's where you will add some code to rollback on failure      
 
 workflows:
