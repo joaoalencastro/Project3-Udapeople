@@ -218,7 +218,7 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root: ~/
+          root: ./
           paths:
             - Project3-Udapeople/.circleci/ansible/inventory.txt
       # rollback on failure
@@ -236,7 +236,7 @@ jobs:
           fingerprints: ["5a:bf:c3:70:1f:c7:cf:b4:c8:21:99:36:b8:ab:cc:b8"]
       # attach workspace
       - attach_workspace:
-          at: ~/Project3-Udapeople/.circleci/ansible/inventory.txt
+          at: ./Project3-Udapeople/.circleci/ansible/inventory.txt
       - run:
           name: Install dependencies
           command: |
@@ -245,7 +245,7 @@ jobs:
           name: Configure server
           command: |
             cat .circleci/ansible/inventory.txt
-            ansible-playbook -i ~/Project3-Udapeople/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i Project3-Udapeople/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       # rollback on failure
       - destroy-environment
 
@@ -269,19 +269,19 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend:
-          context: SLACK
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - scan-backend:
-          requires: [build-backend]
+      # - build-frontend
+      # - build-backend:
+      #     context: SLACK
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - scan-backend:
+      #     requires: [build-backend]
       - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          #requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
               only: [main]
