@@ -211,7 +211,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run: yum -y install tar gzip
+      - run: yum -y install tar gzip jq
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -251,7 +251,6 @@ jobs:
           <<: *fail_template
       # rollback on failure
       - destroy-environment
-
       
   configure-infrastructure:
     docker:
@@ -276,25 +275,7 @@ jobs:
             ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
       - slack/notify:
           event: fail
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": ":red_circle: Failed job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
-                  }
-                }
-              ]
-            }
+          <<: *fail_template
       # rollback on failure
       - destroy-environment
 
