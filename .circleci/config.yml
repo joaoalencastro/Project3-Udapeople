@@ -263,11 +263,11 @@ jobs:
           fingerprints: ["5a:bf:c3:70:1f:c7:cf:b4:c8:21:99:36:b8:ab:cc:b8"]
       # attach workspace
       - attach_workspace:
-          at: ~/inventory.txt
+          at: ~/
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
+            apk add --update ansible curl jq
       - run:
           name: Configure server
           command: |
