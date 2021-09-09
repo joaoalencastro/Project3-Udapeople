@@ -10,11 +10,17 @@ commands:
       # Add parameter here   
     steps:
       - run:
-          name: Destroy environments
+          name: Rollback of backend in event of job failing
           when: on_fail
           command: |
-            # Your code here
-            exit 1
+            aws cloudformation delete-stack \
+              --stack-name "backend-$CIRCLE_WORKFLOW_ID"
+      - run:
+          name: Rollback of frontend in event of job failing
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack \
+              --stack-name "frontend-$CIRCLE_WORKFLOW_ID"
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -215,19 +221,9 @@ jobs:
           root: ~/
           paths:
             - Project3-Udapeople/.circleci/ansible/inventory.txt
-      # Here's where you will add some code to rollback on failure
-      - run:
-          name: Rollback of backend in event of job failing
-          when: on_fail
-          command: |
-            aws cloudformation delete-stack \
-              --stack-name "backend-$CIRCLE_WORKFLOW_ID"
-      - run:
-          name: Rollback of frontend in event of job failing
-          when: on_fail
-          command: |
-            aws cloudformation delete-stack \
-              --stack-name "frontend-$CIRCLE_WORKFLOW_ID"
+      # rollback on failure
+      - destroy-environment
+
       
   configure-infrastructure:
     docker:
@@ -250,7 +246,8 @@ jobs:
           command: |
             cat .circleci/ansible/inventory.txt
             ansible-playbook -i ~/Project3-Udapeople/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-      # Here's where you will add some code to rollback on failure
+      # rollback on failure
+      - destroy-environment
 
   run-migrations:
     docker:
