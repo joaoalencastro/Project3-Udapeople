@@ -231,7 +231,10 @@ jobs:
               --filters "Name=tag:Stack,Values=backend" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text >> .circleci/ansible/inventory.txt
-      - command: cp Project3-Udapeople/.circleci/ansible/inventory.txt /root/inventory.txt
+      - run:
+          name: copy inventory to /root
+          command: |
+            cp .circleci/ansible/inventory.txt /root/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
