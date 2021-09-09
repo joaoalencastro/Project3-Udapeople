@@ -276,25 +276,25 @@ jobs:
             ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
       - slack/notify:
           event: fail
-            custom: |
-              {
-                "blocks": [
-                  {
-                    "type": "section",
-                    "text": {
-                      "type": "mrkdwn",
-                      "text": ":red_circle: Failed job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
-                    }
-                  },
-                  {
-                    "type": "section",
-                    "text": {
-                      "type": "mrkdwn",
-                      "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
-                    }
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":red_circle: Failed job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
                   }
-                ]
-              }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
+                  }
+                }
+              ]
+            }
       # rollback on failure
       - destroy-environment
 
