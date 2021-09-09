@@ -40,6 +40,56 @@ commands:
             #  Add revert code here. You can find this in the Getting Started section.
               exit 1
             fi
+
+  slack-notify-success:
+    description: Send message in slack of job success
+    steps:
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":white_check_mark: Fixed job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
+                  }
+                }
+              ]
+            }
+
+  slack-notify-fail:
+    description: Send message in slack of job fail
+    steps:
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":red_circle: Failed job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
+                  }
+                }
+              ]
+            }
             
 jobs:
   build-frontend:
@@ -64,6 +114,7 @@ jobs:
             - frontend/node_modules
             - frontend/dist
             - frontend/package-lock.json
+      - slack-notify-fail
 
   build-backend:
     docker:
@@ -84,48 +135,7 @@ jobs:
           paths: 
             - backend/node_modules
             - backend/dist
-      - slack/notify:
-          event: pass
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": ":white_check_mark: Fixed job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
-                  }
-                }
-              ]
-            }
-      - slack/notify:
-          event: fail
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": ":red_circle: Failed job: $CIRCLE_JOB, Build number: $CIRCLE_BUILD_NUM ($CIRCLE_BUILD_URL)"
-                  }
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "Commit hash: $CIRCLE_SHA1 on ($CIRCLE_BRANCH)"
-                  }
-                }
-              ]
-            }
+      - slack-notify-fail
       
   test-frontend:
     docker:
@@ -142,6 +152,7 @@ jobs:
           command: |
             cd frontend
             npm run test
+      - slack-notify-fail
                 
   test-backend:
     docker:
@@ -158,6 +169,7 @@ jobs:
           command: |
             cd backend
             npm run test
+      - slack-notify-fail
             
   scan-frontend:
     docker:
@@ -171,6 +183,7 @@ jobs:
           command: |
             cd frontend
             npm audit fix --audit-level=critical --force
+      - slack-notify-fail
 
   scan-backend:
     docker:
@@ -187,6 +200,7 @@ jobs:
           command: |
             cd backend
             npm audit fix --audit-level=critical --force
+      - slack-notify-fail
 
   deploy-infrastructure:
     docker:
@@ -218,9 +232,11 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root: ./
+          root: /tmp
           paths:
             - Project3-Udapeople/.circleci/ansible/inventory.txt
+      - slack-notify-success
+      - slack-notify-fail
       # rollback on failure
       - destroy-environment
 
@@ -236,7 +252,7 @@ jobs:
           fingerprints: ["5a:bf:c3:70:1f:c7:cf:b4:c8:21:99:36:b8:ab:cc:b8"]
       # attach workspace
       - attach_workspace:
-          at: ./Project3-Udapeople/.circleci/ansible/inventory.txt
+          at: /tmp/Project3-Udapeople/.circleci/ansible/inventory.txt
       - run:
           name: Install dependencies
           command: |
@@ -245,7 +261,8 @@ jobs:
           name: Configure server
           command: |
             cat .circleci/ansible/inventory.txt
-            ansible-playbook -i Project3-Udapeople/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i /tmp/Project3-Udapeople/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+      - slack-notify-fail
       # rollback on failure
       - destroy-environment
 
