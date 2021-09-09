@@ -232,9 +232,9 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root: /tmp
+          root: ~/
           paths:
-            - Project3-Udapeople/.circleci/ansible/inventory.txt
+            - ~/Project3-Udapeople/.circleci/ansible/inventory.txt
       - slack-notify-success
       - slack-notify-fail
       # rollback on failure
@@ -252,7 +252,7 @@ jobs:
           fingerprints: ["5a:bf:c3:70:1f:c7:cf:b4:c8:21:99:36:b8:ab:cc:b8"]
       # attach workspace
       - attach_workspace:
-          at: /tmp/Project3-Udapeople/.circleci/ansible/inventory.txt
+          at: ~/Project3-Udapeople/.circleci/ansible/inventory.txt
       - run:
           name: Install dependencies
           command: |
@@ -261,7 +261,7 @@ jobs:
           name: Configure server
           command: |
             cat .circleci/ansible/inventory.txt
-            ansible-playbook -i /tmp/Project3-Udapeople/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i ~/Project3-Udapeople/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       - slack-notify-fail
       # rollback on failure
       - destroy-environment
@@ -286,23 +286,30 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build-frontend
-      # - build-backend:
-      #     context: SLACK
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      # - scan-backend:
-      #     requires: [build-backend]
+      - build-frontend:
+          context: SLACK
+      - build-backend:
+          context: SLACK
+      - test-frontend:
+          context: SLACK
+          requires: [build-frontend]
+      - test-backend:
+          context: SLACK
+          requires: [build-backend]
+      - scan-frontend:
+          context: SLACK
+          requires: [build-frontend]
+      - scan-backend:
+          context: SLACK
+          requires: [build-backend]
       - deploy-infrastructure:
-          #requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          context: SLACK
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
               only: [main]
       - configure-infrastructure:
+          context: SLACK
           requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
