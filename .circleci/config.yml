@@ -268,7 +268,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible curl jq
+            apk add --update ansible curl jq awscli
       - run:
           name: Configure server
           command: |
