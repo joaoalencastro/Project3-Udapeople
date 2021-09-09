@@ -231,10 +231,11 @@ jobs:
               --filters "Name=tag:Stack,Values=backend" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text >> .circleci/ansible/inventory.txt
+      - command: cp Project3-Udapeople/.circleci/ansible/inventory.txt /root/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - ~/Project3-Udapeople/.circleci/ansible/inventory.txt
+            - inventory.txt
       - slack-notify-success
       - slack-notify-fail
       # rollback on failure
@@ -252,7 +253,7 @@ jobs:
           fingerprints: ["5a:bf:c3:70:1f:c7:cf:b4:c8:21:99:36:b8:ab:cc:b8"]
       # attach workspace
       - attach_workspace:
-          at: ~/Project3-Udapeople/.circleci/ansible/inventory.txt
+          at: ~/inventory.txt
       - run:
           name: Install dependencies
           command: |
@@ -260,8 +261,8 @@ jobs:
       - run:
           name: Configure server
           command: |
-            cat .circleci/ansible/inventory.txt
-            ansible-playbook -i ~/Project3-Udapeople/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+            cat ~/inventory.txt
+            ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
       - slack-notify-fail
       # rollback on failure
       - destroy-environment
