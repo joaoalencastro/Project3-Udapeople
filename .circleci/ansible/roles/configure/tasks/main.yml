@@ -10,3 +10,4 @@
     TYPEORM_USERNAME: 'postgres'
     TYPEORM_PASSWORD: 'udapeople123'
     TYPEORM_DATABASE: 'udapeople-prod'
+  shell: node app.js
