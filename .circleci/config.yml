@@ -302,6 +302,7 @@ jobs:
           command: |
             cd backend
             npm install
+            npm audit fix
             npm run build
             cd dist && ls
             npm run migrations > migrationOutput.txt
