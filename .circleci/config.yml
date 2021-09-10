@@ -296,11 +296,13 @@ jobs:
       - run:
           name: Run migrations
           command: |
+            cd backend
             npm run build \
             && ts-node -r dotenv/config node_modules/.bin/typeorm migration:run > migrationOutput.txt
       - run:
           name: Send migration results to memstash
           command: |
+            cd backend
             if [grep -x "has been executed successfully" migrationOutput.txt]; \
               then curl -H "Content-Type: text/plain" -H "token: d4b8799d-a7e6-4eaa-b392-b79d18c585da" \
               --request PUT --data "1" https://api.memstash.io/values/successfulMigration; else \
