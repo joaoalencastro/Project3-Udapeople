@@ -9,6 +9,10 @@
   become: yes
   apt: name=python3 state=present
 
+- name: "Enable the NodeSource repository"
+  become: yes
+  shell: curl -sL https://deb.nodesource.com/setup_12.x | -E bash -
+
 - name: "install nodejs."
   become: yes
   apt: name=nodejs state=present
