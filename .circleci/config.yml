@@ -74,13 +74,12 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
-            if(( $SUCCESS==1 )); 
+            SUCCESS=$(curl -H "token: d4b8799d-a7e6-4eaa-b392-b79d18c585da" --request GET https://api.memstash.io/values/successfulMigration)
+            if(( $SUCCESS=="1" )); 
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+              cd ~/project/backend
+              cd backend
+              npm run migrations:revert
             fi
             
 jobs:
@@ -297,17 +296,24 @@ jobs:
       - run:
           name: Run migrations
           command: |
-            # Your code here
-            exit 1
+            npm run build \
+            && ts-node -r dotenv/config node_modules/.bin/typeorm migration:run > migrationOutput.txt
       - run:
           name: Send migration results to memstash
           command: |
-            # Your code here
-            exit 1
+            if [grep -x "has been executed successfully" migrationOutput.txt]; \
+              then curl -H "Content-Type: text/plain" -H "token: d4b8799d-a7e6-4eaa-b392-b79d18c585da" \
+              --request PUT --data "1" https://api.memstash.io/values/successfulMigration; else \
+              curl -H "Content-Type: text/plain" -H "token: d4b8799d-a7e6-4eaa-b392-b79d18c585da" \
+              --request PUT --data "0" https://api.memstash.io/values/successfulMigration; fi
+      - slack/notify:
+          event: pass
+          <<: *success_template
       - slack/notify:
           event: fail
           <<: *fail_template
-     # Here's where you will add some code to rollback on failure      
+      # Here's where you will add some code to rollback on failure
+      - revert-migrations
 
 workflows:
   default:
@@ -328,16 +334,16 @@ workflows:
       # - scan-backend:
       #     context: SLACK
       #     requires: [build-backend]
-      - deploy-infrastructure:
-          context: SLACK
-          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [main]
-      - configure-infrastructure:
-          context: SLACK
-          requires: [deploy-infrastructure]
-      # - run-migrations:
+      # - deploy-infrastructure:
+      #     context: SLACK
+      #     # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     filters:
+      #       branches:
+      #         only: [main]
+      # - configure-infrastructure:
+      #     context: SLACK
+      #     requires: [deploy-infrastructure]
+      - run-migrations
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
       #     requires: [run-migrations]
