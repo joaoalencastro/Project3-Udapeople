@@ -303,6 +303,7 @@ jobs:
             cd backend
             npm install
             npm audit fix --force
+            npm run build
             npm run migrations > migrationOutput.txt
             cat migrationOutput.txt
       - run:
