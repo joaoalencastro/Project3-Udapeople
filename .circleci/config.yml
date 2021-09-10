@@ -74,7 +74,7 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS=$(curl -H "token: d4b8799d-a7e6-4eaa-b392-b79d18c585da" --request GET https://api.memstash.io/values/successfulMigration)
+            SUCCESS=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/successfulMigration)
             echo $SUCCESS
             if(( $SUCCESS=="1" )); 
             then
@@ -301,6 +301,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
+            npm install
             npm run build
             cd dist && ls
             npm run migrations > migrationOutput.txt
@@ -310,9 +311,9 @@ jobs:
           command: |
             cd backend
             if [grep -x "has been executed successfully" migrationOutput.txt]; \
-              then curl -H "Content-Type: text/plain" -H "token: d4b8799d-a7e6-4eaa-b392-b79d18c585da" \
+              then curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
               --request PUT --data "1" https://api.memstash.io/values/successfulMigration; else \
-              curl -H "Content-Type: text/plain" -H "token: d4b8799d-a7e6-4eaa-b392-b79d18c585da" \
+              curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
               --request PUT --data "0" https://api.memstash.io/values/successfulMigration; fi
       - slack/notify:
           event: pass
