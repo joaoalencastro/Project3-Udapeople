@@ -1,5 +1,9 @@
 ---
 
+- name: "Enable the NodeSource repository"
+  become: yes
+  shell: echo "https://deb.nodesource.com/setup_12.x" | sudo tee -a /etc/apt/sources.list
+
 - name: "update apt packages"
   become: yes
   apt:  
@@ -9,16 +13,9 @@
   become: yes
   apt: name=python3 state=present
 
-- name: "Enable the NodeSource repository"
-  become: yes
-  shell: curl -sL https://deb.nodesource.com/setup_12.x | -E bash -
-
 - name: "install nodejs."
   become: yes
   apt: name=nodejs state=present
-
-- name: "test npm"
-  shell: which npm
 
 - name: "install pm2"
   become: true
