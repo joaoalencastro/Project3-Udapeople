@@ -16,6 +16,10 @@
 - name: "test npm"
   shell: which npm
 
-- name: "install pm2."
-  become: yes
-  shell: /usr/bin/npm install pm2 -g
+- name: "install pm2"
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
