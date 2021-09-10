@@ -266,9 +266,18 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: Install dependencies (1/2)
           command: |
-            apk add --update ansible curl jq awscli
+            apk add --no-cache \
+              python3 \
+              py3-pip \
+              && pip3 install --upgrade pip \
+              && pip3 install awscli \
+      - run:
+          name: Install dependencies (2/2)
+          command: |
+            apk add --update ansible curl jq \
+              && rm -rf /var/cache/apk/*
       - run:
           name: Configure server
           command: |
