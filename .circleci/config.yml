@@ -75,6 +75,7 @@ commands:
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS=$(curl -H "token: d4b8799d-a7e6-4eaa-b392-b79d18c585da" --request GET https://api.memstash.io/values/successfulMigration)
+            echo $SUCCESS
             if(( $SUCCESS=="1" )); 
             then
               cd ~/project/backend
@@ -89,7 +90,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: frontend-build--{{ checksum "package-lock.json" }}
+          key: frontend-build-{{ checksum "package-lock.json" }}
       - run: 
           name: Front-end build
           command: |
@@ -100,7 +101,7 @@ jobs:
             npm run lint
             ls -l
       - save_cache:
-          key: frontend-build--{{ checksum "package-lock.json" }}
+          key: frontend-build-{{ checksum "package-lock.json" }}
           paths: 
             - frontend/node_modules
             - frontend/dist
@@ -140,7 +141,7 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          key: frontend-build--{{ checksum "package-lock.json" }}
+          key: frontend-build-{{ checksum "package-lock.json" }}
       # Your job code here
       - run:
           name: Unit Testing frontend
@@ -176,7 +177,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: frontend-build--{{ checksum "package-lock.json" }}
+          key: frontend-build-{{ checksum "package-lock.json" }}
       - run:
           name: Scanning frontend
           command: |
@@ -293,11 +294,14 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      # Restore from cache
+      - restore_cache:
+          key: backend-build-{{ checksum "package-lock.json" }}
       - run:
           name: Run migrations
           command: |
             cd backend
-            npm run build
+            #npm run build
             ts-node -r dotenv/config node_modules/.bin/typeorm migration:run > migrationOutput.txt
       - run:
           name: Send migration results to memstash
@@ -320,10 +324,10 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build-frontend:
-      #     context: SLACK
-      # - build-backend:
-      #     context: SLACK
+      - build-frontend:
+          context: SLACK
+      - build-backend:
+          context: SLACK
       # - test-frontend:
       #     context: SLACK
       #     requires: [build-frontend]
@@ -345,7 +349,8 @@ workflows:
       # - configure-infrastructure:
       #     context: SLACK
       #     requires: [deploy-infrastructure]
-      - run-migrations
+      - run-migrations:
+          context: SLACK
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
       #     requires: [run-migrations]
