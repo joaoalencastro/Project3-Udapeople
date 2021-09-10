@@ -302,7 +302,9 @@ jobs:
           command: |
             cd backend
             npm run build
-            ts-node -r dotenv/config node_modules/.bin/typeorm migration:run > migrationOutput.txt
+            cd dist && ls
+            npm run migrations > migrationOutput.txt
+            cat migrationOutput.txt
       - run:
           name: Send migration results to memstash
           command: |
