@@ -301,7 +301,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            #npm run build
+            npm run build
             ts-node -r dotenv/config node_modules/.bin/typeorm migration:run > migrationOutput.txt
       - run:
           name: Send migration results to memstash
@@ -351,7 +351,7 @@ workflows:
       #     requires: [deploy-infrastructure]
       - run-migrations:
           context: SLACK
-      #     requires: [configure-infrastructure]
+          requires: [build-backend]
       # - deploy-frontend:
       #     requires: [run-migrations]
       # - deploy-backend:
